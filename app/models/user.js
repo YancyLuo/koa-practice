@@ -1,8 +1,25 @@
+const bcrypt = require('bcryptjs')
 const {sequelize} = require('../../core/db.js')
 const {Sequelize, Model} = require('sequelize')
 
 class User extends Model{
+  static async verifyEamilPassword(email, plainPassword) {
+    const user = await User.findOne({
+      where: {
+        email
+      }
+    })
+    if(!user) {
+      throw new global.errs.AuthFailed('账号不存在')
+    }
 
+    const correct = bcrypt.compareSync(plainPassword, user.password)
+    if(!correct) {
+      throw new global.errs.AuthFailed('密码不正确')
+    }
+
+    return user
+  }
 }
 
 User.init({
@@ -19,8 +36,18 @@ User.init({
     autoIncrement: true
   },
   nickname: Sequelize.STRING, //昵称
-  email: Sequelize.STRING,   
-  password: Sequelize.STRING,
+  email: {
+    type: Sequelize.STRING(128),
+    unique: true
+  },  
+  password: {
+    type: Sequelize.STRING,
+    set(val) {
+      const salt = bcrypt.genSaltSync(10)
+      const pwd = bcrypt.hashSync(val, salt)
+      this.setDataValue('password', pwd)
+    }
+  },
 
   // 微信小程序自动生成的id，针对一个小程序唯一且不变
   openid: {
@@ -31,3 +58,7 @@ User.init({
   sequelize,
   tableName: 'user'
 })
+
+module.exports = {
+  User
+}

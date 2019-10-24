@@ -8,7 +8,7 @@ router.get('/v1/classic/:id/latest', async (ctx, next) => {
   const headers = ctx.request.header
   const body = ctx.request.body
   
-  const v = new PositiveIntegerValidator().validate(ctx)
+  const v = await new PositiveIntegerValidator().validate(ctx)
   ctx.body = {
     key: 'classic'
   }

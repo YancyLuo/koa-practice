@@ -16,7 +16,27 @@ class ParameterException extends HTTPException {
   }
 }
 
+class Success extends HTTPException {
+  constructor(meg, errorCode) {
+    super() 
+    this.msg = meg || 'ok'
+    this.errorCode = errorCode || 0
+    this.code = 201
+  }
+}
+
+class AuthFailed extends HTTPException {
+  constructor(meg, errorCode) {
+    super() 
+    this.msg = meg || '授权失败'
+    this.errorCode = errorCode || 10004
+    this.code = 401
+  }
+}
+
 module.exports = {
   HTTPException,
-  ParameterException
+  ParameterException,
+  Success,
+  AuthFailed
 }
